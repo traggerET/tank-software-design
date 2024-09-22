@@ -78,8 +78,6 @@ public class GameDesktopLauncher implements ApplicationListener {
 
         processPlayerMovementProgress(getDeltaTime());
 
-        drawMovementOfPlayer();
-
         renderEachTileOfLevel();
 
         recordAllDrawingCommands();
@@ -109,10 +107,6 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     private void processPlayerMovementProgress(float deltaTime) {
         tank.processMovementProgress(deltaTime);
-    }
-
-    private void drawMovementOfPlayer() {
-        tankDrawable.drawMovement();
     }
 
     private float getDeltaTime() {

@@ -30,11 +30,6 @@ public class TreeDrawable implements Drawable {
         drawTextureRegionUnscaled(batch, textureRegion, rectangle, tree.getRotation());
     }
 
-    @Override
-    public void drawMovement() {
-
-    }
-
     public Rectangle getRectangle() {
         return rectangle;
     }
