@@ -39,10 +39,20 @@ public class GameDesktopLauncher implements ApplicationListener {
     private TreeDrawable treeDrawable;
     private InputHandler inputHandler;
 
+    private static final String TmxMapFileName = "level.tmx";
+    private static final String TankTexturePath = "images/tank_blue.png";
+    private static final String TreeTexturePath = "images/greenTree.png";
+
+    // level width: 10 tiles x 128px, height: 8 tiles x 128px
+    private static final int Width = 1280;
+    private static final int Height = 1024;
+    private static final GridPoint2 TreeCoordinates = new GridPoint2(1, 3);
+    private static final float TreeRotation = 0f;
+
+
     public static void main(String[] args) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-        // level width: 10 tiles x 128px, height: 8 tiles x 128px
-        config.setWindowedMode(1280, 1024);
+        config.setWindowedMode(Width, Height);
         new Lwjgl3Application(new GameDesktopLauncher(), config);
     }
 
@@ -51,19 +61,19 @@ public class GameDesktopLauncher implements ApplicationListener {
         batch = new SpriteBatch();
 
         // load level tiles
-        level = new TmxMapLoader().load("level.tmx");
+        level = new TmxMapLoader().load(TmxMapFileName);
         levelRenderer = createSingleLayerMapRenderer(level, batch);
         TiledMapTileLayer groundLayer = getSingleLayer(level);
         TileMovement tileMovement = new TileMovement(groundLayer, Interpolation.smooth);
 
         // Texture decodes an image file and loads it into GPU memory, it represents a native resource
-        blueTankTexture = new Texture("images/tank_blue.png");
+        blueTankTexture = new Texture(TankTexturePath);
         // TextureRegion represents Texture portion, there may be many TextureRegion instances of the same Texture
 
-        greenTreeTexture = new Texture("images/greenTree.png");
+        greenTreeTexture = new Texture(TreeTexturePath);
 
         tank = new Tank();
-        Tree tree = new Tree(new GridPoint2(1, 3), 0f);
+        Tree tree = new Tree(TreeCoordinates, TreeRotation);
         tankDrawable = new TankDrawable(tank, blueTankTexture, tileMovement);
         treeDrawable = new TreeDrawable(tree, greenTreeTexture, tileMovement);
         moveRectangleAtTileCenter(groundLayer, treeDrawable.getRectangle(), tree.getCoordinates());
