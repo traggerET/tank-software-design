@@ -4,51 +4,28 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.MapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.math.GridPoint2;
-import com.badlogic.gdx.math.Interpolation;
-import ru.mipt.bit.platformer.core.Tank;
-import ru.mipt.bit.platformer.core.Tree;
-import ru.mipt.bit.platformer.ui.TankDrawable;
-import ru.mipt.bit.platformer.ui.TreeDrawable;
-import ru.mipt.bit.platformer.util.TileMovement;
-
-import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
-import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
+import com.badlogic.gdx.utils.Disposable;
+import ru.mipt.bit.platformer.core.mapgenerator.FileMapGenerator;
+import ru.mipt.bit.platformer.core.mapgenerator.IMapGenerator;
+import ru.mipt.bit.platformer.core.objects.Tank;
+import ru.mipt.bit.platformer.ui.Render;
+import ru.mipt.bit.platformer.ui.Renderer;
 
 public class GameDesktopLauncher implements ApplicationListener {
-
-    private Batch batch;
-
-    private TiledMap level;
-    private MapRenderer levelRenderer;
-
-    private Texture blueTankTexture;
-    // player current position coordinates on level 10x8 grid (e.g. x=0, y=1)
-
-    private Texture greenTreeTexture;
+    private Render render;
+    private Renderer renderer;
 
     private Tank tank;
-    private TankDrawable tankDrawable;
-    private TreeDrawable treeDrawable;
     private InputHandler inputHandler;
 
     private static final String TmxMapFileName = "level.tmx";
     private static final String TankTexturePath = "images/tank_blue.png";
     private static final String TreeTexturePath = "images/greenTree.png";
+    private static final String TxtMapPath = "src/main/resources/map.txt";
 
     // level width: 10 tiles x 128px, height: 8 tiles x 128px
     private static final int Width = 1280;
     private static final int Height = 1024;
-    private static final GridPoint2 TreeCoordinates = new GridPoint2(1, 3);
-    private static final float TreeRotation = 0f;
-
 
     public static void main(String[] args) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -58,74 +35,18 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-
-        // load level tiles
-        level = new TmxMapLoader().load(TmxMapFileName);
-        levelRenderer = createSingleLayerMapRenderer(level, batch);
-        TiledMapTileLayer groundLayer = getSingleLayer(level);
-        TileMovement tileMovement = new TileMovement(groundLayer, Interpolation.smooth);
-
-        // Texture decodes an image file and loads it into GPU memory, it represents a native resource
-        blueTankTexture = new Texture(TankTexturePath);
-        // TextureRegion represents Texture portion, there may be many TextureRegion instances of the same Texture
-
-        greenTreeTexture = new Texture(TreeTexturePath);
-
-        tank = new Tank();
-        Tree tree = new Tree(TreeCoordinates, TreeRotation);
-        tankDrawable = new TankDrawable(tank, blueTankTexture, tileMovement);
-        treeDrawable = new TreeDrawable(tree, greenTreeTexture, tileMovement);
-        moveRectangleAtTileCenter(groundLayer, treeDrawable.getRectangle(), tree.getCoordinates());
-        inputHandler = new InputHandler(tank, tree);
+        IMapGenerator mapGenerator = new FileMapGenerator(TxtMapPath);
+        tank = mapGenerator.getTank();
+        render = new Render(TmxMapFileName, TankTexturePath, TreeTexturePath);
+        renderer = render.render(tank, mapGenerator.getTrees());
+        inputHandler = new InputHandler(tank);
     }
 
     @Override
     public void render() {
-        clearScreen();
-
-        processInputs();
-
-        processPlayerMovementProgress(getDeltaTime());
-
-        renderEachTileOfLevel();
-
-        recordAllDrawingCommands();
-    }
-
-    private void processInputs() {
         inputHandler.handleInputs();
-    }
-
-    private void recordAllDrawingCommands() {
-        // start recording all drawing commands
-        batch.begin();
-
-        // render player
-        tankDrawable.drawTexture(batch);
-
-        // render tree obstacle
-        treeDrawable.drawTexture(batch);
-
-        // submit all drawing requests
-        batch.end();
-    }
-
-    private void renderEachTileOfLevel() {
-        levelRenderer.render();
-    }
-
-    private void processPlayerMovementProgress(float deltaTime) {
-        tank.processMovementProgress(deltaTime);
-    }
-
-    private float getDeltaTime() {
-        return Gdx.graphics.getDeltaTime();
-    }
-
-    private void clearScreen() {
-        Gdx.gl.glClearColor(0f, 0f, 0.2f, 1f);
-        Gdx.gl.glClear(GL_COLOR_BUFFER_BIT);
+        tank.processMovementProgress(Gdx.graphics.getDeltaTime());
+        renderer.render();
     }
 
     @Override
@@ -145,10 +66,8 @@ public class GameDesktopLauncher implements ApplicationListener {
 
     @Override
     public void dispose() {
-        // dispose of all the native resources (classes which implement com.badlogic.gdx.utils.Disposable)
-        greenTreeTexture.dispose();
-        blueTankTexture.dispose();
-        level.dispose();
-        batch.dispose();
+        for (Disposable disposable : render.getDisposables()) {
+            disposable.dispose();
+        }
     }
 }
