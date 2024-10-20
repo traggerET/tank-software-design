@@ -9,4 +9,6 @@ public interface IMapGenerator {
     Tank getTank();
     
     List<Tree> getTrees();
+
+    List<Tank> getNpcTanks();
 }

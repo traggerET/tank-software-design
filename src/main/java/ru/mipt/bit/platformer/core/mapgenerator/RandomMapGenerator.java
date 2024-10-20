@@ -15,17 +15,18 @@ import static ru.mipt.bit.platformer.util.GdxGameUtils.incrementedY;
 public class RandomMapGenerator implements IMapGenerator{
     private final Tank tank;
     private final List<Tree> trees = new ArrayList<>();
+    private List<Tank> tanks = new ArrayList<>();
 
-    public RandomMapGenerator(int width, int height, int treesNum) {
+    public RandomMapGenerator(int width, int height, int treesNum, int tanksNum) {
         Set<GridPoint2> generated = new HashSet<>();
-
-        var tankCoords = newRandomCoordinates(width, height);
-        generated.add(tankCoords);
 
         var treeCoords = generateRandomCoordinates(generated, treesNum, width, height);
         createTrees(treeCoords);
 
-        tank = new Tank(tankCoords, incrementedY(tankCoords), new MapNavigator(width, height, trees));
+        Set<GridPoint2> tankCoords = generateRandomCoordinates(generated, tanksNum, width, height);
+        createTanks(tankCoords, width, height);
+
+        tank = tanks.remove(tanks.size() - 1);
     }
 
     private Set<GridPoint2> generateRandomCoordinates(Set<GridPoint2> excludeCoords, int num, int width, int height) {
@@ -52,9 +53,22 @@ public class RandomMapGenerator implements IMapGenerator{
         }
     }
 
+    private void createTanks(Set<GridPoint2> coords, int width, int height) {
+        List<Tank> loctanks = new ArrayList<>();
+        for (var coord: coords) {
+            loctanks.add(new Tank(coord, incrementedY(coord), new MapNavigator(width, height, trees, loctanks, loctanks.size())));
+        }
+        tanks = new ArrayList<>(loctanks);
+    }
+
     @Override
     public List<Tree> getTrees() {
         return trees;
+    }
+
+    @Override
+    public List<Tank> getNpcTanks() {
+        return tanks;
     }
 
     @Override

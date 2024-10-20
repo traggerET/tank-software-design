@@ -5,17 +5,23 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.utils.Disposable;
+import ru.mipt.bit.platformer.core.ai.AIMock;
 import ru.mipt.bit.platformer.core.mapgenerator.FileMapGenerator;
 import ru.mipt.bit.platformer.core.mapgenerator.IMapGenerator;
 import ru.mipt.bit.platformer.core.objects.Tank;
 import ru.mipt.bit.platformer.ui.Render;
 import ru.mipt.bit.platformer.ui.Renderer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameDesktopLauncher implements ApplicationListener {
     private Render render;
     private Renderer renderer;
 
     private Tank tank;
+    private List<Tank> npcTanks;
+    private AIMock npcController;
     private InputHandler inputHandler;
 
     private static final String TmxMapFileName = "level.tmx";
@@ -37,15 +43,31 @@ public class GameDesktopLauncher implements ApplicationListener {
     public void create() {
         IMapGenerator mapGenerator = new FileMapGenerator(TxtMapPath);
         tank = mapGenerator.getTank();
+        npcTanks = mapGenerator.getNpcTanks();
+        npcController = new AIMock(npcTanks);
+
         render = new Render(TmxMapFileName, TankTexturePath, TreeTexturePath);
-        renderer = render.render(tank, mapGenerator.getTrees());
+
+        var tanks = new ArrayList<>(npcTanks);
+        tanks.add(tank);
+
+        renderer = render.render(tanks, mapGenerator.getTrees());
         inputHandler = new InputHandler(tank);
     }
 
     @Override
     public void render() {
         inputHandler.handleInputs();
+
+        if (!npcTanks.isEmpty()) {
+            npcController.newCommand().execute();
+        }
+
         tank.processMovementProgress(Gdx.graphics.getDeltaTime());
+        for (Tank tank : npcTanks) {
+            tank.processMovementProgress(Gdx.graphics.getDeltaTime());
+        }
+
         renderer.render();
     }
 

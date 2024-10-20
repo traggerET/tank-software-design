@@ -34,15 +34,10 @@ public class Render {
         return disposables;
     }
 
-    public Renderer render(Tank tank, List<Tree> trees) {
-        renderTank(tank);
+    public Renderer render(List<Tank> tanks, List<Tree> trees) {
+        renderTanks(tanks);
         renderTrees(trees);
         return renderer;
-    }
-
-    private void renderTank(Tank tank) {
-        TankDrawable tankGraphics = new TankDrawable(tank, tankTexture, renderer.getTileMovement());
-        renderer.addDrawableObject(tankGraphics);
     }
 
     private void renderTrees(List<Tree> trees) {
@@ -50,6 +45,13 @@ public class Render {
             TreeDrawable treeGraphics = new TreeDrawable(tree, treeTexture, renderer.getTileMovement());
             renderer.addDrawableObject(treeGraphics);
             renderer.moveRectangleAtTileCenter(treeGraphics.getRectangle(), tree.getCoordinates());
+        }
+    }
+
+    private void renderTanks(List<Tank> tanks) {
+        for (Tank tank : tanks) {
+            TankDrawable tankDrawable = new TankDrawable(tank, tankTexture, renderer.getTileMovement());
+            renderer.addDrawableObject(tankDrawable);
         }
     }
 }

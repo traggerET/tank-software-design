@@ -14,6 +14,7 @@ public class FileMapGenerator implements IMapGenerator {
     private static final String TankChar = "X";
     private static final String TreeChar = "T";
     private final Tank tank;
+    private final List<Tank> tanks;
     private final List<Tree> trees;
 
     public FileMapGenerator(String file) {
@@ -21,24 +22,23 @@ public class FileMapGenerator implements IMapGenerator {
 
         Collections.reverse(charmap);
         trees = new ArrayList<>();
+        ArrayList<Tank> loctanks = new ArrayList<>();
 
-        GridPoint2 tankCoordinate = null;
+        int height = charmap.size();
+        int width = charmap.get(0).size();
 
         for (int i = 0; i < charmap.size(); i++) {
             for (int j = 0; j < charmap.get(i).size(); j++) {
                 var currPos = new GridPoint2(j, i);
                 if (charmap.get(i).get(j).equals(TankChar)) {
-                    tankCoordinate = currPos;
+                    loctanks.add(new Tank(currPos, incrementedY(currPos), new MapNavigator(width, height, trees, loctanks, loctanks.size())));
                 } else if (charmap.get(i).get(j).equals(TreeChar)) {
                     trees.add(new Tree(currPos, 0));
                 }
             }
         }
-
-        int height = charmap.size();
-        int width = charmap.get(0).size();
-
-        tank = new Tank(tankCoordinate, incrementedY(tankCoordinate), new MapNavigator(width, height, trees));
+        tanks = new ArrayList<>(loctanks);
+        tank = tanks.remove(tanks.size() - 1);
     }
 
     private List<List<String>> readMapFromFile(String file) {
@@ -62,5 +62,10 @@ public class FileMapGenerator implements IMapGenerator {
     @Override
     public List<Tree> getTrees() {
         return trees;
+    }
+
+    @Override
+    public List<Tank> getNpcTanks() {
+        return tanks;
     }
 }

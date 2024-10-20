@@ -77,7 +77,7 @@ public class Tank {
     }
 
     private void moveRelative(Function<GridPoint2, GridPoint2> moveFunc, Direction direction) {
-        if (mapNavigator.isFreeTile(moveFunc.apply(coordinates))) {
+        if (mapNavigator.isFreeTile(moveFunc.apply(playerDestinationCoordinates))) {
             setDestinationCoordinates(direction.getVector());
             resetMovementProgress();
         }
