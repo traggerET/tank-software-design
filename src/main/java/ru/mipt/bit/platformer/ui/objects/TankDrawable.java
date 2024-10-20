@@ -1,10 +1,11 @@
-package ru.mipt.bit.platformer.ui;
+package ru.mipt.bit.platformer.ui.objects;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import ru.mipt.bit.platformer.core.Tank;
+import ru.mipt.bit.platformer.core.objects.Tank;
+import ru.mipt.bit.platformer.ui.Drawable;
 import ru.mipt.bit.platformer.util.TileMovement;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
