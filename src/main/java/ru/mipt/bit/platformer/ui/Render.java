@@ -6,6 +6,8 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.utils.Disposable;
 import ru.mipt.bit.platformer.core.objects.Tank;
 import ru.mipt.bit.platformer.core.objects.Tree;
+import ru.mipt.bit.platformer.ui.objects.DrawHpToggler;
+import ru.mipt.bit.platformer.ui.objects.HpDecorator;
 import ru.mipt.bit.platformer.ui.objects.TankDrawable;
 import ru.mipt.bit.platformer.ui.objects.TreeDrawable;
 
@@ -17,8 +19,9 @@ public class Render {
     private final List<Disposable> disposables = new ArrayList<>();
     private final Texture tankTexture;
     private final Texture treeTexture;
+    private final DrawHpToggler drawHp;
 
-    public Render(String levelConfigFileName, String tankTextureFile, String treeTextureFile) {
+    public Render(String levelConfigFileName, String tankTextureFile, String treeTextureFile, DrawHpToggler drawHp) {
         var lvl = new TmxMapLoader().load(levelConfigFileName);
         var batch = new SpriteBatch();
         renderer = new Renderer(batch, lvl, new ArrayList<>());
@@ -28,6 +31,7 @@ public class Render {
         disposables.add(batch);
         treeTexture = new Texture(treeTextureFile);
         disposables.add(treeTexture);
+       this.drawHp = drawHp;
     }
 
     public List<Disposable> getDisposables() {
@@ -50,7 +54,7 @@ public class Render {
 
     private void renderTanks(List<Tank> tanks) {
         for (Tank tank : tanks) {
-            TankDrawable tankDrawable = new TankDrawable(tank, tankTexture, renderer.getTileMovement());
+            TankDrawable tankDrawable = new HpDecorator(tank, tankTexture, renderer.getTileMovement(), drawHp);
             renderer.addDrawableObject(tankDrawable);
         }
     }

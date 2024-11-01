@@ -12,11 +12,11 @@ import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
 public class TankDrawable implements Drawable {
-    private final Tank tank;
+    protected final Tank tank;
     private final Texture texture;
     private final TextureRegion textureRegion;
     private final TileMovement tileMovement;
-    private Rectangle rectangle;
+    protected Rectangle rectangle;
 
     public TankDrawable(Tank tank, Texture texture, TileMovement tileMovement) {
         this.tank = tank;

@@ -4,14 +4,17 @@ import com.badlogic.gdx.Gdx;
 import ru.mipt.bit.platformer.core.Direction;
 import ru.mipt.bit.platformer.core.objects.Tank;
 import ru.mipt.bit.platformer.core.objects.Tree;
+import ru.mipt.bit.platformer.ui.objects.DrawHpToggler;
 
 import static com.badlogic.gdx.Input.Keys.*;
 
 public class InputHandler {
     private final Tank tank;
+    private final DrawHpToggler drawHp;
 
-    public InputHandler(Tank tank) {
+    public InputHandler(Tank tank, DrawHpToggler drawHp) {
         this.tank = tank;
+        this.drawHp = drawHp;
     }
 
     public void handleInputs() {
@@ -34,6 +37,9 @@ public class InputHandler {
             if (tank.canMoveInThisTick()) {
                 tank.move(Direction.RIGHT);
             }
+        }
+        if (Gdx.input.isKeyPressed(L)) {
+            drawHp.switchToggler();
         }
     }
 }

@@ -11,6 +11,7 @@ import ru.mipt.bit.platformer.core.mapgenerator.IMapGenerator;
 import ru.mipt.bit.platformer.core.objects.Tank;
 import ru.mipt.bit.platformer.ui.Render;
 import ru.mipt.bit.platformer.ui.Renderer;
+import ru.mipt.bit.platformer.ui.objects.DrawHpToggler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class GameDesktopLauncher implements ApplicationListener {
     private Renderer renderer;
 
     private Tank tank;
+    private final DrawHpToggler drawHp =  new DrawHpToggler();
     private List<Tank> npcTanks;
     private AIMock npcController;
     private InputHandler inputHandler;
@@ -46,13 +48,13 @@ public class GameDesktopLauncher implements ApplicationListener {
         npcTanks = mapGenerator.getNpcTanks();
         npcController = new AIMock(npcTanks);
 
-        render = new Render(TmxMapFileName, TankTexturePath, TreeTexturePath);
+        render = new Render(TmxMapFileName, TankTexturePath, TreeTexturePath, drawHp);
 
         var tanks = new ArrayList<>(npcTanks);
         tanks.add(tank);
 
         renderer = render.render(tanks, mapGenerator.getTrees());
-        inputHandler = new InputHandler(tank);
+        inputHandler = new InputHandler(tank, drawHp);
     }
 
     @Override

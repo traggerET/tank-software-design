@@ -21,6 +21,7 @@ public class Tank {
     private final GridPoint2 playerDestinationCoordinates;
     private float playerMovementProgress = PROGRESS_ENABLED;
     private float playerRotation;
+    private int hp;
 
     public Tank(GridPoint2 coordinates, GridPoint2 dstCoordinates, MapNavigator mapNavigator) {
         this.coordinates = coordinates;
@@ -61,6 +62,10 @@ public class Tank {
 
     public float getPlayerMovementProgress() {
         return playerMovementProgress;
+    }
+
+    public float getHp() {
+        return hp;
     }
 
     public float getPlayerRotation() {
