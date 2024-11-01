@@ -1,6 +1,7 @@
-package ru.mipt.bit.platformer.core;
+package ru.mipt.bit.platformer.core.objects;
 
 import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.core.Direction;
 import ru.mipt.bit.platformer.util.GdxGameUtils;
 
 import java.util.function.Function;
@@ -9,32 +10,44 @@ import static com.badlogic.gdx.math.MathUtils.isEqual;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.*;
 
 public class Tank {
+    private final float PROGRESS_ENABLED = 1f;
+    private final float PROGRESS_DISABLED = 0f;
+
     private final float movementSpeed = 0.4f;
 
-    private final GridPoint2 coordinates = new GridPoint2(1, 0);
-    private final GridPoint2 playerDestinationCoordinates = new GridPoint2(1, 0);
-    private float playerMovementProgress = 1f;
-    private float playerRotation;
+    private final MapNavigator mapNavigator;
 
-    public boolean canMoveInThisTick() {
-        return isEqual(playerMovementProgress, 1f);
+    private final GridPoint2 coordinates;
+    private final GridPoint2 playerDestinationCoordinates;
+    private float playerMovementProgress = PROGRESS_ENABLED;
+    private float playerRotation;
+    private int hp;
+
+    public Tank(GridPoint2 coordinates, GridPoint2 dstCoordinates, MapNavigator mapNavigator) {
+        this.coordinates = coordinates;
+        this.playerDestinationCoordinates = dstCoordinates;
+        this.mapNavigator = mapNavigator;
     }
 
-    public void move(GridPoint2 objectCoordinate, Direction direction) {
+    public boolean canMoveInThisTick() {
+        return isEqual(playerMovementProgress, PROGRESS_ENABLED);
+    }
+
+    public void move(Direction direction) {
         if (direction == Direction.UP) {
-            moveRelative(GdxGameUtils::incrementedY, objectCoordinate, direction);
+            moveRelative(GdxGameUtils::incrementedY, direction);
         } else if (direction == Direction.DOWN) {
-            moveRelative(GdxGameUtils::decrementedY, objectCoordinate, direction);
+            moveRelative(GdxGameUtils::decrementedY, direction);
         } else if (direction == Direction.LEFT) {
-            moveRelative(GdxGameUtils::decrementedX, objectCoordinate, direction);
+            moveRelative(GdxGameUtils::decrementedX, direction);
         } else {
-            moveRelative(GdxGameUtils::incrementedX, objectCoordinate, direction);
+            moveRelative(GdxGameUtils::incrementedX, direction);
         }
     }
 
     public void processMovementProgress(float deltaTime) {
         playerMovementProgress = continueProgress(playerMovementProgress, deltaTime, movementSpeed);
-        if (isEqual(playerMovementProgress, 1f)) {
+        if (isEqual(playerMovementProgress, PROGRESS_ENABLED)) {
             coordinates.set(playerDestinationCoordinates);
         }
     }
@@ -51,6 +64,10 @@ public class Tank {
         return playerMovementProgress;
     }
 
+    public float getHp() {
+        return hp;
+    }
+
     public float getPlayerRotation() {
         return playerRotation;
     }
@@ -61,11 +78,11 @@ public class Tank {
     }
 
     private void resetMovementProgress() {
-        playerMovementProgress = 0f;
+        playerMovementProgress = PROGRESS_DISABLED;
     }
 
-    private void moveRelative(Function<GridPoint2, GridPoint2> moveFunc, GridPoint2 objectCoordinate, Direction direction) {
-        if (!objectCoordinate.equals(moveFunc.apply(coordinates))) {
+    private void moveRelative(Function<GridPoint2, GridPoint2> moveFunc, Direction direction) {
+        if (mapNavigator.isFreeTile(moveFunc.apply(playerDestinationCoordinates))) {
             setDestinationCoordinates(direction.getVector());
             resetMovementProgress();
         }
