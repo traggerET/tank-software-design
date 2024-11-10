@@ -33,4 +33,9 @@ public class TankDrawable implements Drawable {
 
         drawTextureRegionUnscaled(batch, textureRegion, rectangle, tank.getPlayerRotation());
     }
+
+    @Override
+    public Object getObj() {
+        return tank;
+    }
 }

@@ -4,23 +4,22 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import ru.mipt.bit.platformer.core.objects.Tree;
 import ru.mipt.bit.platformer.ui.Drawable;
 import ru.mipt.bit.platformer.util.TileMovement;
+import ru.mipt.bit.platformer.core.objects.Bullet;
+
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.createBoundingRectangle;
 import static ru.mipt.bit.platformer.util.GdxGameUtils.drawTextureRegionUnscaled;
 
-public class TreeDrawable implements Drawable {
-    private final Tree tree;
-    private final Texture texture;
+public class BulletDrawable implements Drawable {
+    private final Bullet bullet;
     private final TextureRegion textureRegion;
-    private final Rectangle rectangle;
     private final TileMovement tileMovement;
+    private Rectangle rectangle;
 
-    public TreeDrawable(Tree tree, Texture texture, TileMovement tileMovement) {
-        this.tree = tree;
-        this.texture = texture;
+    public BulletDrawable(Bullet bullet, Texture texture, TileMovement tileMovement) {
+        this.bullet = bullet;
         this.textureRegion = new TextureRegion(texture);
         this.tileMovement = tileMovement;
         this.rectangle = createBoundingRectangle(textureRegion);
@@ -28,15 +27,14 @@ public class TreeDrawable implements Drawable {
 
     @Override
     public void drawTexture(Batch batch) {
-        drawTextureRegionUnscaled(batch, textureRegion, rectangle, tree.getRotation());
+        rectangle = tileMovement.moveRectangleBetweenTileCenters(rectangle, bullet.getCoordinates(),
+                bullet.getDestinationCoordinates(), bullet.getMovementProgress());
+
+        drawTextureRegionUnscaled(batch, textureRegion, rectangle, bullet.getRotation());
     }
 
     @Override
     public Object getObj() {
-        return tree;
-    }
-
-    public Rectangle getRectangle() {
-        return rectangle;
+        return bullet;
     }
 }

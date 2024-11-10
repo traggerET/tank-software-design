@@ -21,10 +21,10 @@ public class Render {
     private final Texture treeTexture;
     private final DrawHpToggler drawHp;
 
-    public Render(String levelConfigFileName, String tankTextureFile, String treeTextureFile, DrawHpToggler drawHp) {
+    public Render(String levelConfigFileName, String tankTextureFile, String treeTextureFile,  String bulletTexture, DrawHpToggler drawHp) {
         var lvl = new TmxMapLoader().load(levelConfigFileName);
         var batch = new SpriteBatch();
-        renderer = new Renderer(batch, lvl, new ArrayList<>());
+        renderer = new Renderer(batch, lvl, new ArrayList<>(), bulletTexture);
         tankTexture = new Texture(tankTextureFile);
         disposables.add(tankTexture);
         disposables.add(lvl);
@@ -57,5 +57,9 @@ public class Render {
             TankDrawable tankDrawable = new HpDecorator(tank, tankTexture, renderer.getTileMovement(), drawHp);
             renderer.addDrawableObject(tankDrawable);
         }
+    }
+
+    public Renderer getRenderer() {
+        return renderer;
     }
 }

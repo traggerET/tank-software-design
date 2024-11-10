@@ -41,5 +41,8 @@ public class InputHandler {
         if (Gdx.input.isKeyPressed(L)) {
             drawHp.switchToggler();
         }
+        if (Gdx.input.isKeyPressed(SPACE)) {
+            tank.shoot();
+        }
     }
 }
