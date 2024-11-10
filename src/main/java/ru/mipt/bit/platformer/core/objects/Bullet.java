@@ -10,9 +10,12 @@ public class Bullet implements Collidable {
     private static int BULLET_RANGE = 5;
     private static int BULLET_DAMAGE = 10;
 
+    private static float DELTA = 0.4f;
+    private static float DELTA_PROGRESS = 0.2f;
+
     private final float rotation;
     private float movementProgress = 0f;
-    private float movementProgressCnt = 0f;
+    private float counterProgress = 0f;
 
     private final Tank tank;
     private final Direction direction;
@@ -62,8 +65,8 @@ public class Bullet implements Collidable {
     public void processMovementProgress(float deltaTime) {
         movementProgress = continueProgress(movementProgress, deltaTime, 1f);
 
-        if (movementProgress - movementProgressCnt > 0.3f) {
-            movementProgressCnt += .2f;
+        if (movementProgress - counterProgress > DELTA) {
+            counterProgress += DELTA_PROGRESS;
             coordinates.add(direction.getVector());
         }
     }
