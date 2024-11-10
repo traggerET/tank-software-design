@@ -30,13 +30,13 @@ public class Renderer implements IListener {
     private final List<Drawable> drawables;
     private final Texture bulletTexture;
 
-    public Renderer(Batch batch, TiledMap level, List<Drawable> drawables, String bulletTexture) {
+    public Renderer(Batch batch, TiledMap level, List<Drawable> drawables, Texture bulletTexture) {
         this.batch = batch;
         this.drawables = drawables;
         this.levelRenderer = createSingleLayerMapRenderer(level, batch);
         this.groundLayer = getSingleLayer(level);
         this.tileMovement = new TileMovement(groundLayer, Interpolation.smooth);
-        this.bulletTexture = new Texture(bulletTexture);
+        this.bulletTexture = bulletTexture;
     }
 
     public void render() {

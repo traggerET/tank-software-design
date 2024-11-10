@@ -24,13 +24,15 @@ public class Render {
     public Render(String levelConfigFileName, String tankTextureFile, String treeTextureFile,  String bulletTexture, DrawHpToggler drawHp) {
         var lvl = new TmxMapLoader().load(levelConfigFileName);
         var batch = new SpriteBatch();
-        renderer = new Renderer(batch, lvl, new ArrayList<>(), bulletTexture);
+        var bTexture = new Texture(bulletTexture);
+        renderer = new Renderer(batch, lvl, new ArrayList<>(), bTexture);
         tankTexture = new Texture(tankTextureFile);
         disposables.add(tankTexture);
         disposables.add(lvl);
         disposables.add(batch);
         treeTexture = new Texture(treeTextureFile);
         disposables.add(treeTexture);
+        disposables.add(bTexture);
        this.drawHp = drawHp;
     }
 
