@@ -23,18 +23,18 @@ public class Tank implements Collidable {
 
     private final GridPoint2 coordinates;
     private final GridPoint2 playerDestinationCoordinates;
-    private final EPublisher em;
+    private final EPublisher ePublisher;
     private float playerMovementProgress = PROGRESS_ENABLED;
     private float playerRotation;
     private int hp;
     private long shotTime = new Date().getTime();
     private Direction direction;
 
-    public Tank(GridPoint2 coordinates, GridPoint2 dstCoordinates, MapNavigator mapNavigator, Direction direction, EPublisher em) {
+    public Tank(GridPoint2 coordinates, GridPoint2 dstCoordinates, MapNavigator mapNavigator, Direction direction, EPublisher ePublisher) {
         this.coordinates = coordinates;
         this.playerDestinationCoordinates = dstCoordinates;
         this.mapNavigator = mapNavigator;
-        this.em = em;
+        this.ePublisher = ePublisher;
         this.direction = direction;
     }
 
@@ -112,7 +112,7 @@ public class Tank implements Collidable {
             return;
         }
 
-        em.fireEvent(SHOOT, new Bullet(this, direction, em));
+        ePublisher.fireEvent(SHOOT, new Bullet(this, direction, ePublisher, mapNavigator));
     }
 
     @Override
@@ -120,7 +120,7 @@ public class Tank implements Collidable {
         hp -= c.getDamageCollision();
 
         if (hp <= 0) {
-            em.fireEvent(TANK_BROKEN, this);
+            ePublisher.fireEvent(TANK_BROKEN, this);
         }
         return true;
     }

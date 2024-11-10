@@ -13,7 +13,7 @@ public class CollisionManager {
         for (int i = 0; i < collidables.size(); i++) {
             for (Collidable collidable : collidables) {
                 if (!collidables.get(i).equals(collidable) &&
-                        collidables.get(i).getCoordinates() == collidable.getCoordinates()) {
+                        collidables.get(i).getCoordinates().equals(collidable.getCoordinates())) {
                     collidable.doCollide(collidables.get(i));
                     collidables.get(i).doCollide(collidable);
                 }
