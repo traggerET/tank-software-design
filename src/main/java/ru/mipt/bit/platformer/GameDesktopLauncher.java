@@ -15,6 +15,7 @@ import ru.mipt.bit.platformer.ui.Render;
 import ru.mipt.bit.platformer.ui.Renderer;
 import ru.mipt.bit.platformer.ui.objects.DrawHpToggler;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class GameDesktopLauncher implements ApplicationListener, IListener {
     private Tank tank;
     private final DrawHpToggler drawHp = new DrawHpToggler();
     private List<Tank> npcTanks;
-    private List<Bullet> bullets;
+    private final List<Bullet> bullets = new ArrayList<>();
     private AIMock npcController;
     private InputHandler inputHandler;
 
