@@ -1,6 +1,7 @@
 package ru.mipt.bit.platformer.core.mapgenerator;
 
 import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.core.Direction;
 import ru.mipt.bit.platformer.core.objects.MapNavigator;
 import ru.mipt.bit.platformer.core.objects.Tank;
 import ru.mipt.bit.platformer.core.objects.Tree;
@@ -31,7 +32,7 @@ public class FileMapGenerator implements IMapGenerator {
             for (int j = 0; j < charmap.get(i).size(); j++) {
                 var currPos = new GridPoint2(j, i);
                 if (charmap.get(i).get(j).equals(TankChar)) {
-                    loctanks.add(new Tank(currPos, incrementedY(currPos), new MapNavigator(width, height, trees, loctanks, loctanks.size())));
+                    loctanks.add(new Tank(currPos, incrementedY(currPos), new MapNavigator(width, height, trees, loctanks, loctanks.size()), Direction.UP));
                 } else if (charmap.get(i).get(j).equals(TreeChar)) {
                     trees.add(new Tree(currPos, 0));
                 }
