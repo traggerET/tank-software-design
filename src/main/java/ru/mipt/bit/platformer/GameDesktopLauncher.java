@@ -14,6 +14,8 @@ import ru.mipt.bit.platformer.core.objects.*;
 import ru.mipt.bit.platformer.ui.Render;
 import ru.mipt.bit.platformer.ui.Renderer;
 import ru.mipt.bit.platformer.ui.objects.DrawHpToggler;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 
 
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ public class GameDesktopLauncher implements ApplicationListener, IListener {
     private Renderer renderer;
 
     private Tank tank;
-    private final DrawHpToggler drawHp = new DrawHpToggler();
+    private DrawHpToggler drawHp;
     private List<Tank> npcTanks;
     private final List<Bullet> bullets = new ArrayList<>();
     private AIMock npcController;
@@ -53,18 +55,20 @@ public class GameDesktopLauncher implements ApplicationListener, IListener {
 
     @Override
     public void create() {
-        IMapGenerator mapGenerator = new FileMapGenerator(TxtMapPath);
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("appbeans.xml");
+
+        IMapGenerator mapGenerator = context.getBean("fmapgen", FileMapGenerator.class);
         tank = mapGenerator.getTank();
         npcTanks = mapGenerator.getNpcTanks();
         npcController = new AIMock(npcTanks);
-
 
         var al = new ArrayList<Collidable>(npcTanks);
         al.addAll(mapGenerator.getTrees());
         al.add(tank);
         collisionManager = new CollisionManager(al);
 
-        render = new Render(TmxMapFileName, TankTexturePath, TreeTexturePath, BulletTexturePath,drawHp);
+        render = context.getBean("urender", Render.class);
+        drawHp = render.getDrawHp();
 
         List<Events> events = new ArrayList<>();
         events.add(BULLET_STOPPED);
@@ -81,6 +85,10 @@ public class GameDesktopLauncher implements ApplicationListener, IListener {
 
         var tanks = new ArrayList<>(npcTanks);
         tanks.add(tank);
+
+        for (Tank value : tanks) {
+            value.setPublisher(epub);
+        }
 
         renderer = render.render(tanks, mapGenerator.getTrees());
         inputHandler = new InputHandler(tank, drawHp);

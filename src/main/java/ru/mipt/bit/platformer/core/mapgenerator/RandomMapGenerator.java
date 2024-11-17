@@ -1,6 +1,7 @@
 package ru.mipt.bit.platformer.core.mapgenerator;
 
 import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.core.Direction;
 import ru.mipt.bit.platformer.core.objects.MapNavigator;
 import ru.mipt.bit.platformer.core.objects.Tank;
 import ru.mipt.bit.platformer.core.objects.Tree;
@@ -56,7 +57,7 @@ public class RandomMapGenerator implements IMapGenerator{
     private void createTanks(Set<GridPoint2> coords, int width, int height) {
         List<Tank> loctanks = new ArrayList<>();
         for (var coord: coords) {
-            loctanks.add(new Tank(coord, incrementedY(coord), new MapNavigator(width, height, trees, loctanks, loctanks.size())));
+            loctanks.add(new Tank(coord, incrementedY(coord), new MapNavigator(width, height, trees, loctanks, loctanks.size()), Direction.UP));
         }
         tanks = new ArrayList<>(loctanks);
     }

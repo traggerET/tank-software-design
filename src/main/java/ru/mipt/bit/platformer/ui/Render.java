@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.utils.Disposable;
+import ru.mipt.bit.platformer.core.mapgenerator.FileMapGenerator;
+import ru.mipt.bit.platformer.core.mapgenerator.IMapGenerator;
 import ru.mipt.bit.platformer.core.objects.Tank;
 import ru.mipt.bit.platformer.core.objects.Tree;
 import ru.mipt.bit.platformer.ui.objects.DrawHpToggler;
@@ -22,8 +24,11 @@ public class Render {
     private final DrawHpToggler drawHp;
 
     public Render(String levelConfigFileName, String tankTextureFile, String treeTextureFile,  String bulletTexture, DrawHpToggler drawHp) {
-        var lvl = new TmxMapLoader().load(levelConfigFileName);
-        var batch = new SpriteBatch();
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("appbeans.xml");
+
+        TmxMapLoader loader = context.getBean("tmxmaploader", TmxMapLoader.class);
+        var lvl = loader.load(levelConfigFileName);
+        var batch = context.getBean("batch", SpriteBatch.class);
         var bTexture = new Texture(bulletTexture);
         renderer = new Renderer(batch, lvl, new ArrayList<>(), bTexture);
         tankTexture = new Texture(tankTextureFile);
@@ -38,6 +43,10 @@ public class Render {
 
     public List<Disposable> getDisposables() {
         return disposables;
+    }
+
+    public DrawHpToggler getDrawHp() {
+        return drawHp;
     }
 
     public Renderer render(List<Tank> tanks, List<Tree> trees) {

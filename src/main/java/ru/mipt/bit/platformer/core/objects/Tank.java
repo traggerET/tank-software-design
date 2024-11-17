@@ -23,19 +23,22 @@ public class Tank implements Collidable {
 
     private final GridPoint2 coordinates;
     private final GridPoint2 playerDestinationCoordinates;
-    private final EPublisher ePublisher;
+    private EPublisher ePublisher;
     private float playerMovementProgress = PROGRESS_ENABLED;
     private float playerRotation;
     private int hp;
     private long shotTime = new Date().getTime();
     private Direction direction;
 
-    public Tank(GridPoint2 coordinates, GridPoint2 dstCoordinates, MapNavigator mapNavigator, Direction direction, EPublisher ePublisher) {
+    public Tank(GridPoint2 coordinates, GridPoint2 dstCoordinates, MapNavigator mapNavigator, Direction direction) {
         this.coordinates = coordinates;
         this.playerDestinationCoordinates = dstCoordinates;
         this.mapNavigator = mapNavigator;
-        this.ePublisher = ePublisher;
         this.direction = direction;
+    }
+
+    public void setPublisher(EPublisher publ) {
+        this.ePublisher =publ;
     }
 
     public boolean canMoveInThisTick() {
