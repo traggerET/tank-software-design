@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="tmxmaploader" class="com.badlogic.gdx.maps.tiled.TmxMapLoader">
+    </bean>
+
+    <bean id="batch" class="com.badlogic.gdx.graphics.g2d.SpriteBatch">
+    </bean>
+
+    <bean id="drawhptoggle" class="ru.mipt.bit.platformer.ui.objects.DrawHpToggler">
+    </bean>
+
+    <bean id="tankdrawer" class="ru.mipt.bit.platformer.ui.objects.TankDrawer">
+        <constructor-arg index="0" value="${map.tankTextureFile}"/>
+        <constructor-arg index="1" ref="drawhptoggle"/>
+    </bean>
+
+    <bean id="bulletdrawer" class="ru.mipt.bit.platformer.ui.objects.BulletDrawer">
+        <constructor-arg index="0" value="${map.bulletTexture}"/>
+    </bean>
+
+    <bean id="treedrawer" class="ru.mipt.bit.platformer.ui.objects.TreeDrawer">
+        <constructor-arg index="0" value="${map.treeTextureFile}"/>
+    </bean>
+
+    <bean id="urender" class="ru.mipt.bit.platformer.ui.Render">
+        <constructor-arg index="0" value="${map.levelConfigFileName}"/>
+        <constructor-arg index="1">
+            <list>
+                <ref bean="tankdrawer" />
+                <ref bean="treedrawer" />
+                <ref bean="bulletdrawer" />
+            </list>
+        </constructor-arg>
+        <constructor-arg index="2" value="${map.bulletTexture}"/>
+        <constructor-arg index="3" ref="drawhptoggle"/>
+    </bean>
+</beans>
