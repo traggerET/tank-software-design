@@ -1,23 +1,20 @@
 package ru.mipt.bit.platformer.core.objects;
 
 import com.badlogic.gdx.math.GridPoint2;
-
-import java.util.List;
+import ru.mipt.bit.platformer.core.commands.GameObjectsManager;
+import ru.mipt.bit.platformer.core.commands.IGameObject;
 
 public class MapNavigator {
     private final int height;
     private final int width;
+    private final GameObjectsManager gameObjectsManager;
+    private final IGameObject ownerObj;
 
-    private final List<Tree> trees;
-    private final List<Tank> tanks;
-    private final int navigatorOwnerId;
-
-    public MapNavigator(int width, int height, List<Tree> trees, List<Tank> tanks, int navigatorOwnerId) {
+    public MapNavigator(int width, int height, GameObjectsManager gameObjectsManager, IGameObject ownerObj) {
         this.height = height;
         this.width = width;
-        this.trees = trees;
-        this.tanks = tanks;
-        this.navigatorOwnerId = navigatorOwnerId;
+        this.gameObjectsManager = gameObjectsManager;
+        this.ownerObj = ownerObj;
     }
 
     public boolean isFreeTile(GridPoint2 pos) {
@@ -27,21 +24,11 @@ public class MapNavigator {
         if (pos.y < 0 || pos.y >= height) {
             return false;
         }
-        for (var tree: trees) {
-            if (pos.equals(tree.getCoordinates())) {
-                return false;
-            }
-        }
-        for (var tank: tanks) {
-            if (tank == tanks.get(navigatorOwnerId)) {
+        for (var obj: gameObjectsManager.getGameObjects()) {
+            if (ownerObj == obj) {
                 continue;
             }
-
-            if (pos.equals(tank.getCoordinates())) {
-                return false;
-            }
-
-            if (pos.equals(tank.getPlayerDestinationCoordinates())) {
+            if (obj.isTakesTile(pos)) {
                 return false;
             }
         }

@@ -2,8 +2,6 @@ package ru.mipt.bit.platformer.core.mapgenerator;
 
 import org.junit.Test;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -12,7 +10,7 @@ public class RandomMapGeneratorTest {
     public void mapgenerator() {
         var mapg = new RandomMapGenerator(7, 5, 3, 4);
         assertEquals(3, mapg.getNpcTanks().size());
-        assertNotNull(mapg.getTank());
+        assertNotNull(mapg.getPlayerTank());
         assertEquals(3, mapg.getTrees().size());
     }
 }

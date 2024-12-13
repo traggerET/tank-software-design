@@ -1,8 +1,14 @@
 package ru.mipt.bit.platformer.core.objects;
 
+import ru.mipt.bit.platformer.core.events.Events;
+import ru.mipt.bit.platformer.core.events.IListener;
+
 import java.util.List;
 
-public class CollisionManager {
+import static ru.mipt.bit.platformer.core.events.Events.BULLET_STOPPED;
+import static ru.mipt.bit.platformer.core.events.Events.TANK_BROKEN;
+
+public class CollisionManager implements IListener {
     List<Collidable> collidables;
 
     public CollisionManager(List<Collidable> collidables) {
@@ -21,11 +27,16 @@ public class CollisionManager {
         }
     }
 
-    public void removeCollidable(Collidable collidable) {
-        collidables.remove(collidable);
+    @Override
+    public void handle(Events event, Object object) {
+        if (event.equals(Events.SHOOT)) {
+            collidables.add((Bullet) object);
+        }
+        if (event.equals(BULLET_STOPPED)) {
+            collidables.remove((Bullet) object);
+        }
+        if (event.equals(TANK_BROKEN)) {
+            collidables.remove((Tank) object);
+        }
     }
-    public void addCollidable(Collidable collidable) {
-        collidables.add(collidable);
-    }
-
 }

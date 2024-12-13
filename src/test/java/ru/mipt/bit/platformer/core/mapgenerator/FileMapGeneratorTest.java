@@ -10,7 +10,7 @@ public class FileMapGeneratorTest {
     public void mapgenerator() {
         var mapg = new FileMapGenerator("src/test/resources/testlevel.txt");
         assertEquals(1, mapg.getNpcTanks().size());
-        assertNotNull(mapg.getTank());
+        assertNotNull(mapg.getPlayerTank());
         assertEquals(3, mapg.getTrees().size());
     }
 }

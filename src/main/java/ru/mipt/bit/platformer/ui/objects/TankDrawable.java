@@ -29,7 +29,7 @@ public class TankDrawable implements Drawable {
     @Override
     public void drawTexture(Batch batch) {
         rectangle = tileMovement.moveRectangleBetweenTileCenters(rectangle, tank.getCoordinates(),
-                tank.getPlayerDestinationCoordinates(), tank.getPlayerMovementProgress());
+                tank.getDestinationCoordinates(), tank.getPlayerMovementProgress());
 
         drawTextureRegionUnscaled(batch, textureRegion, rectangle, tank.getPlayerRotation());
     }

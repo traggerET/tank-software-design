@@ -5,15 +5,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.utils.Disposable;
-import ru.mipt.bit.platformer.core.ai.AIMock;
+import ru.mipt.bit.platformer.core.commands.ICommandProducer;
+import ru.mipt.bit.platformer.core.commands.*;
 import ru.mipt.bit.platformer.core.events.Events;
-import ru.mipt.bit.platformer.core.events.IListener;
 import ru.mipt.bit.platformer.core.mapgenerator.FileMapGenerator;
 import ru.mipt.bit.platformer.core.mapgenerator.IMapGenerator;
 import ru.mipt.bit.platformer.core.objects.*;
 import ru.mipt.bit.platformer.ui.Render;
 import ru.mipt.bit.platformer.ui.Renderer;
-import ru.mipt.bit.platformer.ui.objects.DrawHpToggler;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
@@ -23,29 +22,22 @@ import java.util.List;
 
 import static ru.mipt.bit.platformer.core.events.Events.*;
 
-public class GameDesktopLauncher implements ApplicationListener, IListener {
+public class GameDesktopLauncher implements ApplicationListener {
     private Render render;
     private Renderer renderer;
 
     private Tank tank;
-    private DrawHpToggler drawHp;
     private List<Tank> npcTanks;
-    private final List<Bullet> bullets = new ArrayList<>();
-    private AIMock npcController;
-    private InputHandler inputHandler;
-
-    private static final String TmxMapFileName = "level.tmx";
-    private static final String TankTexturePath = "images/tank_blue.png";
-    private static final String TreeTexturePath = "images/greenTree.png";
-    private static final String BulletTexturePath = "images/bullet.png";
-    private static final String TxtMapPath = "src/main/resources/map.txt";
 
     // level width: 10 tiles x 128px, height: 8 tiles x 128px
     private static final int Width = 1280;
     private static final int Height = 1024;
 
-    private EPublisher epub;
     private CollisionManager collisionManager;
+
+    private final List<ICommandProducer> commandProducers = new ArrayList<>();
+    private GameObjectsManager gomgr;
+
 
     public static void main(String[] args) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -58,9 +50,13 @@ public class GameDesktopLauncher implements ApplicationListener, IListener {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("appbeans.xml");
 
         IMapGenerator mapGenerator = context.getBean("fmapgen", FileMapGenerator.class);
-        tank = mapGenerator.getTank();
+        mapGenerator.generate();
+        tank = mapGenerator.getPlayerTank();
         npcTanks = mapGenerator.getNpcTanks();
-        npcController = new AIMock(npcTanks);
+        gomgr = mapGenerator.getGameObjectsManager();
+
+        configureAi();
+        configurePlayer();
 
         var al = new ArrayList<Collidable>(npcTanks);
         al.addAll(mapGenerator.getTrees());
@@ -68,20 +64,19 @@ public class GameDesktopLauncher implements ApplicationListener, IListener {
         collisionManager = new CollisionManager(al);
 
         render = context.getBean("urender", Render.class);
-        drawHp = render.getDrawHp();
 
         List<Events> events = new ArrayList<>();
         events.add(BULLET_STOPPED);
         events.add(TANK_BROKEN);
         events.add(SHOOT);
-        epub = new EPublisher(events);
+        EPublisher epub = new EPublisher(events);
         epub.addListener(SHOOT, render.getRenderer());
         epub.addListener(TANK_BROKEN, render.getRenderer());
         epub.addListener(BULLET_STOPPED, render.getRenderer());
 
-        epub.addListener(SHOOT, this);
-        epub.addListener(TANK_BROKEN, this);
-        epub.addListener(BULLET_STOPPED, this);
+        epub.addListener(SHOOT, gomgr);
+        epub.addListener(TANK_BROKEN, gomgr);
+        epub.addListener(BULLET_STOPPED, gomgr);
 
         var tanks = new ArrayList<>(npcTanks);
         tanks.add(tank);
@@ -90,30 +85,32 @@ public class GameDesktopLauncher implements ApplicationListener, IListener {
             value.setPublisher(epub);
         }
 
-        renderer = render.render(tanks, mapGenerator.getTrees());
-        inputHandler = new InputHandler(tank, drawHp);
+        renderer = render.render(gomgr.getGameObjects());
     }
 
     @Override
     public void render() {
-        inputHandler.handleInputs();
-
-        if (!npcTanks.isEmpty()) {
-            npcController.newCommand().execute();
+        for (var producer : commandProducers) {
+            producer.nextCommand().execute();
         }
 
         collisionManager.manageCollisions();
 
-        tank.processMovementProgress(Gdx.graphics.getDeltaTime());
-        for (Tank tank : npcTanks) {
-            tank.processMovementProgress(Gdx.graphics.getDeltaTime());
-        }
-
-        for (Bullet bullet : bullets) {
-            bullet.processMovementProgress(Gdx.graphics.getDeltaTime());
+        for (IGameObject obj : gomgr.getGameObjects()) {
+            obj.processProgress(Gdx.graphics.getDeltaTime());
         }
 
         renderer.render();
+    }
+
+    private void configureAi() {
+       for (var npcTank: npcTanks) {
+            commandProducers.add(new AiPlayer(new AiCommandsCustomizer().getKnownCommands(), npcTank));
+        }
+    }
+
+    private void configurePlayer() {
+        commandProducers.add(new HumanPlayer(new HumanCommandsCustomizer().getKnownCommands(), tank));
     }
 
     @Override
@@ -135,22 +132,6 @@ public class GameDesktopLauncher implements ApplicationListener, IListener {
     public void dispose() {
         for (Disposable disposable : render.getDisposables()) {
             disposable.dispose();
-        }
-    }
-
-    @Override
-    public void handle(Events event, Object object) {
-        if (event.equals(Events.SHOOT)) {
-            bullets.add((Bullet) object);
-            collisionManager.addCollidable((Bullet) object);
-        }
-        if (event.equals(BULLET_STOPPED)) {
-            bullets.remove((Bullet) object);
-            collisionManager.removeCollidable((Bullet) object);
-        }
-        if (event.equals(TANK_BROKEN)) {
-            npcTanks.remove((Tank) object);
-            collisionManager.removeCollidable((Tank) object);
         }
     }
 }

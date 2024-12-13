@@ -2,6 +2,8 @@ package ru.mipt.bit.platformer.core.mapgenerator;
 
 import com.badlogic.gdx.math.GridPoint2;
 import ru.mipt.bit.platformer.core.Direction;
+import ru.mipt.bit.platformer.core.commands.GameObjectsManager;
+import ru.mipt.bit.platformer.core.commands.IGameObject;
 import ru.mipt.bit.platformer.core.objects.MapNavigator;
 import ru.mipt.bit.platformer.core.objects.Tank;
 import ru.mipt.bit.platformer.core.objects.Tree;
@@ -11,15 +13,33 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ru.mipt.bit.platformer.util.GdxGameUtils.incrementedY;
+public class RandomMapGenerator implements IMapGenerator {
+    private final int width;
+    private final int height;
+    private final int treesNum;
+    private final int tanksNum;
 
-public class RandomMapGenerator implements IMapGenerator{
-    private final Tank tank;
-    private final List<Tree> trees = new ArrayList<>();
+    private Tank tank;
+    private List<Tree> trees = new ArrayList<>();
     private List<Tank> tanks = new ArrayList<>();
+    private List<IGameObject> gameObjects = new ArrayList<>();
+
+    private GameObjectsManager mgr;
+
 
     public RandomMapGenerator(int width, int height, int treesNum, int tanksNum) {
+        this.width = width;
+        this.height = height;
+        this.treesNum = treesNum;
+        this.tanksNum = tanksNum;
+    }
+
+    @Override
+    public void generate() {
         Set<GridPoint2> generated = new HashSet<>();
+
+        gameObjects = new ArrayList<>();
+        mgr = new GameObjectsManager(gameObjects);
 
         var treeCoords = generateRandomCoordinates(generated, treesNum, width, height);
         createTrees(treeCoords);
@@ -50,14 +70,19 @@ public class RandomMapGenerator implements IMapGenerator{
 
     private void createTrees(Set<GridPoint2> treeCoords) {
         for (var treeCoord: treeCoords) {
-            trees.add(new Tree(treeCoord, 0));
+            var tree = new Tree(treeCoord, 0);
+            trees.add(tree);
+            gameObjects.add(tree);
         }
     }
 
     private void createTanks(Set<GridPoint2> coords, int width, int height) {
         List<Tank> loctanks = new ArrayList<>();
         for (var coord: coords) {
-            loctanks.add(new Tank(coord, incrementedY(coord), new MapNavigator(width, height, trees, loctanks, loctanks.size()), Direction.UP));
+            var loctank = new Tank(coord, Direction.UP, 100);
+            loctank.setMapNavigator(new MapNavigator(width, height, mgr, loctank));
+            loctanks.add(loctank);
+            gameObjects.add(loctank);
         }
         tanks = new ArrayList<>(loctanks);
     }
@@ -73,7 +98,12 @@ public class RandomMapGenerator implements IMapGenerator{
     }
 
     @Override
-    public Tank getTank() {
+    public GameObjectsManager getGameObjectsManager() {
+        return mgr;
+    }
+
+    @Override
+    public Tank getPlayerTank() {
         return tank;
     }
 }

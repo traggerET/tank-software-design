@@ -2,16 +2,19 @@ package ru.mipt.bit.platformer.core.objects;
 
 import com.badlogic.gdx.math.GridPoint2;
 import ru.mipt.bit.platformer.core.Direction;
+import ru.mipt.bit.platformer.core.commands.IGameObject;
 import ru.mipt.bit.platformer.core.events.Events;
 
 import static ru.mipt.bit.platformer.util.GdxGameUtils.continueProgress;
 
-public class Bullet implements Collidable {
+public class Bullet implements Collidable, IGameObject {
     private static int BULLET_RANGE = 10;
     private static int BULLET_DAMAGE = 10;
 
     private static float DELTA = 0.4f;
     private static float DELTA_PROGRESS = 0.2f;
+    private static float SPEED = 1.0f;
+
 
     private final float rotation;
     private final MapNavigator mapNavigator;
@@ -64,13 +67,14 @@ public class Bullet implements Collidable {
         return BULLET_DAMAGE;
     }
 
-    public void processMovementProgress(float deltaTime) {
+    @Override
+    public void processProgress(float deltaTime) {
         if (!mapNavigator.isFreeTile(coordinates)) {
             ePublisher.fireEvent(Events.BULLET_STOPPED, this);
             return;
         }
 
-        movementProgress = continueProgress(movementProgress, deltaTime, 1f);
+        movementProgress = continueProgress(movementProgress, deltaTime, SPEED);
 
         if (movementProgress - counterProgress > DELTA) {
             counterProgress += DELTA_PROGRESS;
@@ -84,6 +88,11 @@ public class Bullet implements Collidable {
 
     public float getMovementProgress() {
         return movementProgress;
+    }
+
+    @Override
+    public boolean isTakesTile(GridPoint2 point) {
+        return false;
     }
 
     public GridPoint2 getDestinationCoordinates() {

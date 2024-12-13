@@ -1,4 +1,4 @@
-package ru.mipt.bit.platformer.core.ai;
+package ru.mipt.bit.platformer.core.commands;
 
 public interface ICommand {
     void execute();

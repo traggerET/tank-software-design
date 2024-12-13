@@ -2,6 +2,8 @@ package ru.mipt.bit.platformer.core.mapgenerator;
 
 import com.badlogic.gdx.math.GridPoint2;
 import ru.mipt.bit.platformer.core.Direction;
+import ru.mipt.bit.platformer.core.commands.GameObjectsManager;
+import ru.mipt.bit.platformer.core.commands.IGameObject;
 import ru.mipt.bit.platformer.core.objects.MapNavigator;
 import ru.mipt.bit.platformer.core.objects.Tank;
 import ru.mipt.bit.platformer.core.objects.Tree;
@@ -9,17 +11,24 @@ import ru.mipt.bit.platformer.core.objects.Tree;
 import java.io.FileReader;
 import java.util.*;
 
-import static ru.mipt.bit.platformer.util.GdxGameUtils.incrementedY;
-
 public class FileMapGenerator implements IMapGenerator {
+    private final String file;
     private static final String TankChar = "X";
     private static final String TreeChar = "T";
-    private final Tank tank;
-    private final List<Tank> tanks;
-    private final List<Tree> trees;
+    private Tank tank;
+    private List<Tank> tanks;
+    private List<Tree> trees;
+    private List<IGameObject> gameObjects;
+    private GameObjectsManager mgr;
 
     public FileMapGenerator(String file) {
+        this.file = file;
+    }
+
+    @Override
+    public void generate() {
         List<List<String>> charmap = readMapFromFile(file);
+        gameObjects = new ArrayList<>();
 
         Collections.reverse(charmap);
         trees = new ArrayList<>();
@@ -28,13 +37,20 @@ public class FileMapGenerator implements IMapGenerator {
         int height = charmap.size();
         int width = charmap.get(0).size();
 
+        mgr = new GameObjectsManager(gameObjects);
+
         for (int i = 0; i < charmap.size(); i++) {
             for (int j = 0; j < charmap.get(i).size(); j++) {
                 var currPos = new GridPoint2(j, i);
                 if (charmap.get(i).get(j).equals(TankChar)) {
-                    loctanks.add(new Tank(currPos, incrementedY(currPos), new MapNavigator(width, height, trees, loctanks, loctanks.size()), Direction.UP));
+                    var loctank = new Tank(currPos, Direction.UP, 100);
+                    loctanks.add(loctank);
+                    gameObjects.add(loctank);
+                    loctank.setMapNavigator(new MapNavigator(width, height, mgr, loctank));
                 } else if (charmap.get(i).get(j).equals(TreeChar)) {
-                    trees.add(new Tree(currPos, 0));
+                    var tree = new Tree(currPos, 0);
+                    gameObjects.add(tree);
+                    trees.add(tree);
                 }
             }
         }
@@ -56,7 +72,7 @@ public class FileMapGenerator implements IMapGenerator {
     }
 
     @Override
-    public Tank getTank() {
+    public Tank getPlayerTank() {
         return tank;
     }
 
@@ -68,5 +84,10 @@ public class FileMapGenerator implements IMapGenerator {
     @Override
     public List<Tank> getNpcTanks() {
         return tanks;
+    }
+
+    @Override
+    public GameObjectsManager getGameObjectsManager() {
+        return mgr;
     }
 }

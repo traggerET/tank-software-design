@@ -1,8 +1,9 @@
 package ru.mipt.bit.platformer.core.objects;
 
 import com.badlogic.gdx.math.GridPoint2;
+import ru.mipt.bit.platformer.core.commands.IGameObject;
 
-public class Tree implements Collidable {
+public class Tree implements Collidable, IGameObject {
     private final GridPoint2 treeObstacleCoordinates;
     private final float rotation;
 
@@ -22,8 +23,17 @@ public class Tree implements Collidable {
     }
 
     @Override
+    public boolean isTakesTile(GridPoint2 point) {
+        return treeObstacleCoordinates.equals(point);
+    }
+
+    @Override
     public GridPoint2 getCoordinates() {
         return treeObstacleCoordinates;
+    }
+
+    @Override
+    public void processProgress(float delta) {
     }
 
     @Override

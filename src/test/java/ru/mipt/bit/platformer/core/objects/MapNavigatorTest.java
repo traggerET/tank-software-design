@@ -2,7 +2,6 @@ package ru.mipt.bit.platformer.core.objects;
 
 import com.badlogic.gdx.math.GridPoint2;
 import org.junit.Test;
-import ru.mipt.bit.platformer.core.ai.TankCommands;
 
 import java.util.ArrayList;
 
